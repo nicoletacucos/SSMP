@@ -7,9 +7,13 @@ void UART0_Transmit(uint8_t data)
 	//Punem in asteptare pana cand registrul de transmisie a datelor nu este gol
 	while(!(UART0->S1 & UART0_S1_TDRE_MASK));
 				UART0->D = data;
-	
 }
 
+void UART0_TransmitString(const char *str) {
+    while (*str) {
+        UART0_Transmit(*str++);
+    }
+}
 
 uint8_t UART0_receive(void)
 {
