@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QApplication
 from PySide6.QtGui import QScreen
 
 app = QApplication([])
-window = MainWindow()
+window = MainWindow(port="COM5", baudrate=115200)
 
 window.setGeometry(0, 0, 800, 600)
 screen_geometry = QScreen.availableGeometry(QApplication.primaryScreen())
