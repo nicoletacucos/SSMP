@@ -6,18 +6,9 @@
 #define BLUE_LED_SHIFT 1  // Pinul pentru LED-ul albastru pe portul D
 #define MASK(x) (1 << x)
 
-//const unsigned int INTARZIERE_10_SECUNDE = 10000000;
-
-void Delay(volatile unsigned int time_del) {
-  while (time_del--) {
-    ; // Instructiune nula
-  }
-}
-
 void OutputPIN_Init(void){
   // Activeaza ceasul pentru porturile B si D
   SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK | SIM_SCGC5_PORTD_MASK;
-
   // Configureaza pinii ca iesiri GPIO
   PORTB->PCR[RED_LED_SHIFT] &= ~PORT_PCR_MUX_MASK;
   PORTB->PCR[RED_LED_SHIFT] |= PORT_PCR_MUX(1);
