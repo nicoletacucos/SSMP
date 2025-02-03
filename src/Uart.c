@@ -34,6 +34,17 @@ void UART0_TransmitDecimalNr(uint8_t byte) {
 	UART0_Transmit(0X0A);
 }
 
+void UART0_TransmitInt16(int16_t data) {
+  char buffer[7]; // Buffer to hold the digits (including negative sign and null terminator)
+  int digits = sprintf(buffer, "%d", data); 
+
+  for (int i = 0; i < digits; i++) {
+    UART0_Transmit(buffer[i]);
+  }
+    
+}
+
+
 
 void UART0_Init(uint32_t baud_rate)
 {

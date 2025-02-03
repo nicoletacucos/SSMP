@@ -21,20 +21,48 @@ Target DLL:      CMSIS_AGDI.dll V1.33.21.0
 Dialog DLL:      TARMCM1.DLL V1.14.6.0
  
 <h2>Project:</h2>
-E:\Facultate\ANUL 4\SSMP\ProiectSSMP\project.uvprojx
-Project File Date:  01/10/2025
+E:\Facultate\ANUL 4\SSMP\ProiectSSMP-repo\SSMP\src\project.uvprojx
+Project File Date:  02/03/2025
 
 <h2>Output:</h2>
 *** Using Compiler 'V6.22', folder: 'C:\Users\Apashe\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin'
 Build target 'Target_1'
-i2c.c(125): warning: variable 'dummy' set but not used [-Wunused-but-set-variable]
-  125 |   uint8_t dummy;
+Pit.c(90): error: use of undeclared identifier 'read_xy_flag'; did you mean 'read_x_flag'?
+   90 |                 read_xy_flag = 1;
+      |                 ^~~~~~~~~~~~
+      |                 read_x_flag
+Pit.c(7): note: 'read_x_flag' declared here
+    7 | volatile uint8_t read_x_flag = 0;
+      |                  ^
+1 error generated.
+compiling Pit.c...
+i2c.c(127): warning: variable 'dummy' set but not used [-Wunused-but-set-variable]
+  127 |   uint8_t dummy;
       |           ^
-1 warning generated.
+i2c.c(178): warning: passing arguments to 'UART0_TransmitString' without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
+  178 |   UART0_TransmitString("Raw X: ");
+      |                       ^
+i2c.c(189): warning: passing arguments to 'UART0_TransmitString' without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
+  189 |   UART0_TransmitString("X (g): ");
+      |                       ^
+i2c.c(218): warning: passing arguments to 'UART0_TransmitString' without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
+  218 |   UART0_TransmitString("Raw Y: ");
+      |                       ^
+i2c.c(229): warning: passing arguments to 'UART0_TransmitString' without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
+  229 |   UART0_TransmitString("Y (g): ");
+      |                       ^
+i2c.c(249): warning: passing arguments to 'UART0_TransmitString' without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
+  249 |   UART0_TransmitString("Calibrating...\r\n");
+      |                       ^
+i2c.c(255): warning: passing arguments to 'UART0_TransmitString' without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
+  255 |   UART0_TransmitString("X Offset: ");
+      |                       ^
+i2c.c(265): warning: passing arguments to 'UART0_TransmitString' without a prototype is deprecated in all versions of C and is not supported in C23 [-Wdeprecated-non-prototype]
+  265 |   UART0_TransmitString("Y Offset: ");
+      |                       ^
+8 warnings generated.
 compiling i2c.c...
-linking...
-Program Size: Code=8552 RO-data=780 RW-data=4 ZI-data=376  
-".\Objects\project.axf" - 0 Error(s), 1 Warning(s).
+".\Objects\project.axf" - 1 Error(s), 8 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -61,10 +89,11 @@ Package Vendor: Keil
    * Component: ARM::CMSIS:CORE@6.1.0
 
    * Component: Keil::Device:Startup@2.5.0
-      Source file:   Device/Source/system_MKL25Z4.c
       Source file:   Device/Source/ARM/startup_MKL25Z4.s
+      Source file:   Device/Source/system_MKL25Z4.c
       Include file:  Device/Source/system_MKL25Z4.h
-Build Time Elapsed:  00:00:01
+Target not created.
+Build Time Elapsed:  00:00:00
 </pre>
 </body>
 </html>

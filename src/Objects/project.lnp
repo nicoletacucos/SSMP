@@ -3,7 +3,6 @@
 ".\objects\main.o"
 ".\objects\pit.o"
 ".\objects\uart.o"
-".\objects\clocksettings.o"
 ".\objects\i2c.o"
 ".\objects\startup_mkl25z4.o"
 ".\objects\system_mkl25z4.o"

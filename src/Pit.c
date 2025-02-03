@@ -1,8 +1,10 @@
 #include "Pit.h"
 #include "Uart.h"
 #include "Gpio.h"
+#include "i2c.h"
 
 uint32_t timer_value;
+volatile uint8_t read_xy_flag = 0;
 
 
 typedef enum {
@@ -31,6 +33,10 @@ void PIT_Init(void) {
 	PIT->CHANNEL[0].TCTRL |= PIT_TCTRL_TIE_MASK;
 	// Activarea timerului de pe canalul 0
 	PIT->CHANNEL[0].TCTRL |= PIT_TCTRL_TEN_MASK;
+
+	PIT->CHANNEL[1].LDVAL = 0x2DC6BFF;
+	PIT->CHANNEL[1].TCTRL |= PIT_TCTRL_TIE_MASK;
+	PIT->CHANNEL[1].TCTRL |= PIT_TCTRL_TEN_MASK;
 	
 	// Activarea întreruperii mascabile si setarea prioritatiis
 	NVIC_ClearPendingIRQ(PIT_IRQn);
@@ -60,22 +66,28 @@ void PIT_IRQHandler(void) {
 		PIT->CHANNEL[0].TFLG &= PIT_TFLG_TIF_MASK;
 		 
 		switch (current_state) {
-      case WHITE:
-        getWhite();
-        current_state = GREEN;
-        break;
-      case GREEN:
-        getGreen();
-        current_state = BLUE;
-        break;
-      case BLUE:
-        getBlue();
-        current_state = MAGENTA;
-        break;
-      case MAGENTA:
-        getMagenta();
-        current_state = WHITE;
-        break;
+			case WHITE:
+				getWhite();
+				current_state = GREEN;
+				break;
+			case GREEN:
+				getGreen();
+				current_state = BLUE;
+				break;
+			case BLUE:
+				getBlue();
+				current_state = MAGENTA;
+				break;
+			case MAGENTA:
+				getMagenta();
+				current_state = WHITE;
+				break;
 		}
 	}
+	if(PIT->CHANNEL[1].TFLG & PIT_TFLG_TIF_MASK) {  //timeout occured
+		PIT->CHANNEL[1].TFLG &= PIT_TFLG_TIF_MASK;
+
+		read_xy_flag = 1;
+	}
+
 }
