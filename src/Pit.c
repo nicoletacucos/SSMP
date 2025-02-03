@@ -4,8 +4,12 @@
 #include "i2c.h"
 
 uint32_t timer_value;
+<<<<<<< HEAD
 volatile uint8_t read_xy_flag = 0;
 
+=======
+uint8_t reverse = 0;  // 0 pentru secventa normala, 1 pentru secventa inversata
+>>>>>>> c9aaa7a700f72c4a3aafabb1065bf188bc350f2a
 
 typedef enum {
     WHITE, GREEN, BLUE, MAGENTA
@@ -65,6 +69,7 @@ void PIT_IRQHandler(void) {
 	if(PIT->CHANNEL[0].TFLG & PIT_TFLG_TIF_MASK) {  //timeout occured
 		PIT->CHANNEL[0].TFLG &= PIT_TFLG_TIF_MASK;
 		 
+<<<<<<< HEAD
 		switch (current_state) {
 			case WHITE:
 				getWhite();
@@ -83,6 +88,48 @@ void PIT_IRQHandler(void) {
 				current_state = WHITE;
 				break;
 		}
+=======
+		if (reverse == 0) {  // Secvență normală
+            switch (current_state) {
+                case WHITE:
+                    getWhite();
+                    current_state = GREEN;
+                    break;
+                case GREEN:
+                    getGreen();
+                    current_state = BLUE;
+                    break;
+                case BLUE:
+                    getBlue();
+                    current_state = MAGENTA;
+                    break;
+                case MAGENTA:
+                    getMagenta();
+                    current_state = WHITE;
+                    break;
+            }
+        } else {  // Secvență inversată
+            switch (current_state) {
+                case WHITE:
+                    getWhite();
+                    current_state = MAGENTA;
+                    break;
+                case MAGENTA:
+                    getMagenta();
+                    current_state = BLUE;
+                    break;
+                case BLUE:
+                    getBlue();
+                    current_state = GREEN;
+                    break;
+                case GREEN:
+                    getGreenInv();
+                    current_state = WHITE;
+                    break;
+            }
+        }
+		
+>>>>>>> c9aaa7a700f72c4a3aafabb1065bf188bc350f2a
 	}
 	if(PIT->CHANNEL[1].TFLG & PIT_TFLG_TIF_MASK) {  //timeout occured
 		PIT->CHANNEL[1].TFLG &= PIT_TFLG_TIF_MASK;

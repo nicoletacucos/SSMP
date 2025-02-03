@@ -38,6 +38,14 @@ void getGreen()
   PTD->PSOR = MASK(BLUE_LED_SHIFT);
 }
 
+void getGreenInv()
+{
+	//UART0_TransmitString("GREEN Inv\r\n");
+	PTB->PSOR = MASK(RED_LED_SHIFT);  
+  PTD->PSOR = MASK(BLUE_LED_SHIFT);
+  PTB->PCOR |= MASK(GREEN_LED_SHIFT);
+}
+
 void getBlue()
 {
 	//UART0_TransmitString("BLUE\r\n");

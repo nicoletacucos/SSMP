@@ -1,6 +1,8 @@
 #include "Uart.h"
+#include "Pit.h"
 
 uint8_t c;
+extern uint8_t reverse;
 
 void UART0_Transmit(uint8_t data)
 {
@@ -48,25 +50,19 @@ void UART0_TransmitInt16(int16_t data) {
 
 void UART0_Init(uint32_t baud_rate)
 {
-	
 	//Setarea sursei de ceas pentru modulul UART
 	SIM->SOPT2 |= SIM_SOPT2_UART0SRC(01);
-	
 	//Activarea semnalului de ceas pentru modulul UART
 	SIM->SCGC4 |= SIM_SCGC4_UART0_MASK;
-	
 	//Activarea semnalului de ceas pentru portul A
 	//intrucat dorim sa folosim pinii PTA1, respectiv PTA2 pentru comunicarea UART
 	SIM->SCGC5 |= SIM_SCGC5_PORTA_MASK;
-	
 	//Fiecare pin pune la dispozitie mai multe functionalitati 
 	//la care avem acces prin intermediul multiplexarii
 	PORTA->PCR[1] = ~PORT_PCR_MUX_MASK;
 	PORTA->PCR[1] = PORT_PCR_ISF_MASK | PORT_PCR_MUX(2); // Configurare RX pentru UART0
 	PORTA->PCR[2] = ~PORT_PCR_MUX_MASK;
 	PORTA->PCR[2] = PORT_PCR_ISF_MASK | PORT_PCR_MUX(2); // Configurare TX pentru UART0
-	
-	
 	
 	UART0->C2 &= ~((UART0_C2_RE_MASK) | (UART0_C2_TE_MASK)); 
 	
@@ -84,7 +80,6 @@ void UART0_Init(uint32_t baud_rate)
 	UART0->BDH = temp | UART0_BDH_SBR(((sbr & 0x1F00)>> 8));
 	UART0->BDL = (uint8_t)(sbr & UART_BDL_SBR_MASK);
 	UART0->C4 |= UART0_C4_OSR(osr);
-	
 	
 	//Setare numarul de biti de date la 8 si fara bit de paritate
 	UART0->C1 = 0;
@@ -106,6 +101,9 @@ void UART0_IRQHandler(void) {
 	if(UART0->S1 & UART0_S1_RDRF_MASK) {
 		c = UART0->D;
 	}
-		
-	UART0_Transmit(c);
+	if (c == 'i') {
+		UART0_TransmitString("Invert Sequence Command.\n");
+		reverse = !reverse; 
+	}
+	//UART0_Transmit(c);
 }
