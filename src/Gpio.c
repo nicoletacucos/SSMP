@@ -25,7 +25,7 @@ void OutputPIN_Init(void){
 
 void getWhite()
 {
-	UART0_TransmitString("WHITE\r\n");
+	//UART0_TransmitString("WHITE\r\n");
 	PTB->PCOR |= MASK(RED_LED_SHIFT) | MASK(GREEN_LED_SHIFT);
 	PTD->PCOR |= MASK(BLUE_LED_SHIFT);
 }		
@@ -33,14 +33,14 @@ void getWhite()
 
 void getGreen()
 {
-	UART0_TransmitString("GREEN\r\n");
+	//UART0_TransmitString("GREEN\r\n");
 	PTB->PSOR = MASK(RED_LED_SHIFT);  
   PTD->PSOR = MASK(BLUE_LED_SHIFT);
 }
 
 void getGreenInv()
 {
-	UART0_TransmitString("GREEN Inv\r\n");
+	//UART0_TransmitString("GREEN Inv\r\n");
 	PTB->PSOR = MASK(RED_LED_SHIFT);  
   PTD->PSOR = MASK(BLUE_LED_SHIFT);
   PTB->PCOR |= MASK(GREEN_LED_SHIFT);
@@ -48,7 +48,7 @@ void getGreenInv()
 
 void getBlue()
 {
-	UART0_TransmitString("BLUE\r\n");
+	//UART0_TransmitString("BLUE\r\n");
 	PTB->PSOR = MASK(GREEN_LED_SHIFT);
 	PTB->PSOR = MASK(RED_LED_SHIFT);
 	PTD->PCOR |= MASK(BLUE_LED_SHIFT);
@@ -56,7 +56,7 @@ void getBlue()
 
 void getMagenta()
 {
-	UART0_TransmitString("MAGENTA\r\n");
+	//UART0_TransmitString("MAGENTA\r\n");
 	PTB->PCOR |= MASK(RED_LED_SHIFT) | MASK(GREEN_LED_SHIFT);
 	PTD->PCOR |= MASK(BLUE_LED_SHIFT);
   PTB->PSOR = MASK(GREEN_LED_SHIFT); 
