@@ -3,7 +3,7 @@
 #include "Gpio.h"
 
 uint32_t timer_value;
-
+uint8_t reverse = 0;  // 0 pentru secventa normala, 1 pentru secventa inversata
 
 typedef enum {
     WHITE, GREEN, BLUE, MAGENTA
@@ -59,23 +59,45 @@ void PIT_IRQHandler(void) {
 	if(PIT->CHANNEL[0].TFLG & PIT_TFLG_TIF_MASK) {  //timeout occured
 		PIT->CHANNEL[0].TFLG &= PIT_TFLG_TIF_MASK;
 		 
-		switch (current_state) {
-      case WHITE:
-        getWhite();
-        current_state = GREEN;
-        break;
-      case GREEN:
-        getGreen();
-        current_state = BLUE;
-        break;
-      case BLUE:
-        getBlue();
-        current_state = MAGENTA;
-        break;
-      case MAGENTA:
-        getMagenta();
-        current_state = WHITE;
-        break;
-		}
+		if (reverse == 0) {  // Secvență normală
+            switch (current_state) {
+                case WHITE:
+                    getWhite();
+                    current_state = GREEN;
+                    break;
+                case GREEN:
+                    getGreen();
+                    current_state = BLUE;
+                    break;
+                case BLUE:
+                    getBlue();
+                    current_state = MAGENTA;
+                    break;
+                case MAGENTA:
+                    getMagenta();
+                    current_state = WHITE;
+                    break;
+            }
+        } else {  // Secvență inversată
+            switch (current_state) {
+                case WHITE:
+                    getWhite();
+                    current_state = MAGENTA;
+                    break;
+                case MAGENTA:
+                    getMagenta();
+                    current_state = BLUE;
+                    break;
+                case BLUE:
+                    getBlue();
+                    current_state = GREEN;
+                    break;
+                case GREEN:
+                    getGreenInv();
+                    current_state = WHITE;
+                    break;
+            }
+        }
+		
 	}
 }

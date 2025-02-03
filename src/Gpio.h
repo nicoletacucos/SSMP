@@ -6,3 +6,4 @@ void getWhite();
 void getGreen();
 void getBlue();
 void getMagenta();
+void getGreenInv();

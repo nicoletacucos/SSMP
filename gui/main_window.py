@@ -107,7 +107,7 @@ class MainWindow(QMainWindow):
         if self.ser:
             try:
                 self.ser.write(data.encode()) 
-                #self.text_edit.append(f"Sent to FRDM: {data}")
+                self.text_edit.append(f"Sent to FRDM: {data}")
             except serial.SerialException as e:
                 self.text_edit.append(f"Eroare trimitere date: {str(e)}")
         else:
@@ -117,14 +117,17 @@ class MainWindow(QMainWindow):
         if self.ser:
             try:
                 response = self.ser.readline().decode().strip() #decodifica datele primite
-                self.text_edit.append(f"{response}")
+                if response:
+                    if "Invert Sequence Command\n" not in self.text_edit.toPlainText():
+                        self.text_edit.append(f"Received: {response}")
             except serial.SerialException as e:
                 self.text_edit.append(f"Eroare citire date: {str(e)}")
         else:
             self.text_edit.append("Serial connection not initialized.")
 
     def invert_led_sequence(self, data):
-        self.send_data("Invert Sequence\n")
+        self.text_edit.append("Invert Sequence Button Pushed")
+        self.send_data("i")
         # response = self.ser.readline().decode().strip()  # Citește și decodifică datele
         # if response=="BLUE\n":
         #     self.text_edit.append(f"Received: {response}")

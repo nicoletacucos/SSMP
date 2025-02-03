@@ -3,9 +3,7 @@
 #include "Gpio.h"
 #include "i2c.h"
 #include "stdio.h"
-#include "ClockSettings.h"
 
-const unsigned int INTARZIERE_10_SECUNDE = 10000000;
 
 extern uint32_t timer_value;
 extern uint8_t led_state;
