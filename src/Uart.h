@@ -7,3 +7,4 @@ uint8_t UART0_Receive(void); // Functie ce returneaza un octet de pe interfata U
 void UART0_TransmitDecimalNr(uint8_t byte);
 void UART0_Init(uint32_t baud_rate); // Initializare a modulului UART pentru trasmiterea datelor, ce primeste ca parametru baud rate-ul dorit
 void UART0_TransmitString();
+void UART0_TransmitInt16(int16_t);

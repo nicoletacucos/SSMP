@@ -7,21 +7,29 @@
 
 extern uint32_t timer_value;
 extern uint8_t led_state;
+extern volatile uint8_t read_xy_flag;
 
 int main() {
 	//SystemClock_Configure();
 	//SystemClockTick_Configure();
 	UART0_Init(115200);
+	i2c_init();
+	uint8_t status = init_sensor();
+	calibrate_xOy();
 	
 	OutputPIN_Init();
 	PIT_Init();
 	
-	i2c_init();
-	uint8_t status = init_sensor();
-	int16_t x = read_full_x();
-	UART0_Transmit(0X0D);
-	UART0_Transmit(0X0A);
+	
+
+	
+;
 	while(1) {   
+		if (read_xy_flag) {
+      		read_xy_flag = 0; 
+      		read_full_x(); 
+      		read_full_y(); 
+    	}
 	}
 	return 0;
 }

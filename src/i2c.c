@@ -1,6 +1,7 @@
 #include "i2c.h"
 #include "Uart.h"
-
+#include <stdlib.h>
+#include <string.h>
 
 //sensor registers
 #define MMA_ADDR 0x1D<<1
@@ -10,6 +11,7 @@
 
 #define DEVICE_ID 0x1A
 #define REG_XHI 0x01
+#define REG_YHI 0x03
 
 //I2C macros
 #define I2C_M_START   I2C0->C1 |= I2C_C1_MST_MASK
@@ -60,14 +62,14 @@ uint8_t init_sensor() {
   //check for device	
 	
 		uint8_t whoiam = i2c_read_byte(MMA_ADDR, REG_WHOAMI);
-		UART0_TransmitDecimalNr(whoiam);
-		
+		//UART0_TransmitDecimalNr(whoiam);
+		 
+		//UART0_TransmitDecimalNr(i2c_read_byte(MMA_ADDR, 0X0B));
 	
     if (whoiam == DEVICE_ID) { 
-				//Delay(40);
+				Delay(40);
         //set active mode, 14 bit samples and 800 Hz ODR
         i2c_write_byte(MMA_ADDR, REG_CTRL1, 0x01);
-		
 		
 
         return 1; 
@@ -157,19 +159,129 @@ int i2c_read_bytes(uint8_t dev_adx, uint8_t reg_adx, uint8_t * data, int8_t data
 
   return 1;
 }
+
+int16_t x_offset = 0;
+int16_t y_offset = 0;
+
 int16_t read_full_x() {
   uint8_t data[2];
   int16_t x;
+  float x_g;
 
   i2c_read_bytes(MMA_ADDR, REG_XHI, data, 2);
-	
-	UART0_Transmit(0X0D);
-	UART0_Transmit(0X0A);
-	
-	UART0_TransmitDecimalNr(data[0]);
-	UART0_TransmitDecimalNr(data[1]);
+
+  UART0_Transmit(0x0D);
+  UART0_Transmit(0x0A);
 
   x = (int16_t)((data[0] << 8) | data[1]);
-	
-	return x;
+
+  UART0_TransmitString("Raw X: ");
+  UART0_TransmitInt16(x);
+  UART0_Transmit(0x0D);
+  UART0_Transmit(0x0A);
+
+  x -= x_offset;
+
+  // Normalizare - impartire la sensibilitate ( ±2g range)
+  x_g = (float)x / 4096.0f;
+
+  // Afisare valoare in g
+  UART0_TransmitString("X (g): ");
+  
+  int16_t x_g_int = (int16_t)(x_g * 100);
+  UART0_TransmitInt16(x_g_int / 100);  // Partea intreaga
+  UART0_Transmit('.');                
+  int16_t fractional_part = abs(x_g_int % 100); //parte zecimala
+  if (fractional_part < 10) {
+      UART0_Transmit('0');
+  }
+  UART0_TransmitInt16(fractional_part);
+
+  UART0_Transmit(0x0D);
+  UART0_Transmit(0x0A);
+
+  return x; 
 }
+
+int16_t read_full_y() {
+  uint8_t data[2];
+  int16_t y;
+  float y_g;
+
+  i2c_read_bytes(MMA_ADDR, REG_YHI, data, 2);
+
+  UART0_Transmit(0x0D);
+  UART0_Transmit(0x0A);
+
+  y = (int16_t)((data[0] << 8) | data[1]);
+
+  UART0_TransmitString("Raw Y: ");
+  UART0_TransmitInt16(y);
+  UART0_Transmit(0x0D);
+  UART0_Transmit(0x0A);
+
+  y -= y_offset;
+
+  // Normalizare - impartire la sensibilitate ( ±2g range)
+  y_g = (float)y / 4096.0f;
+
+  // Afisare valoare in g
+  UART0_TransmitString("Y (g): ");
+  
+  int16_t y_g_int = (int16_t)(y_g * 100);
+  UART0_TransmitInt16(y_g_int / 100);  // Partea intreaga
+  UART0_Transmit('.');                
+  int16_t fractional_part = abs(y_g_int % 100); //parte zecimala
+  if (fractional_part < 10) {
+      UART0_Transmit('0');
+  }
+  UART0_TransmitInt16(fractional_part);
+
+  UART0_Transmit(0x0D);
+  UART0_Transmit(0x0A);
+
+  return y; 
+}
+
+void calibrate_xOy() {
+  uint8_t data[2];
+  
+  UART0_TransmitString("Calibrating...\r\n");
+  Delay(40);
+
+  i2c_read_bytes(MMA_ADDR, REG_XHI, data, 2);
+  x_offset = (int16_t)((data[0] << 8) | data[1]);
+
+  UART0_TransmitString("X Offset: ");
+  UART0_TransmitInt16(x_offset);
+  UART0_Transmit(0x0D);
+  UART0_Transmit(0x0A);
+
+  memset(data,0,sizeof(data));
+  Delay(40);
+  i2c_read_bytes(MMA_ADDR, REG_YHI, data, 2);
+  y_offset = (int16_t)((data[0] << 8) | data[1]);
+
+  UART0_TransmitString("Y Offset: ");
+  UART0_TransmitInt16(y_offset);
+  UART0_Transmit(0x0D);
+  UART0_Transmit(0x0A);
+}
+
+// int16_t read_full_x() {
+//   uint8_t data[2];
+//   int16_t x;
+
+//   i2c_read_bytes(MMA_ADDR, REG_XHI, data, 2);
+	
+// 	UART0_Transmit(0X0D);
+// 	UART0_Transmit(0X0A);
+	
+// 	//UART0_TransmitDecimalNr(data[0]);
+// 	//UART0_TransmitDecimalNr(data[1]);
+
+//   x = (int16_t)((data[0] << 8) | data[1]);
+//   UART0_TransmitInt16(x);
+	
+// 	return x;
+// }
