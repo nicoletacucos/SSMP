@@ -3,19 +3,10 @@
 #include "Gpio.h"
 #include "i2c.h"
 
-uint32_t timer_value;
-<<<<<<< HEAD
-volatile uint8_t read_xy_flag = 0;
-
-=======
-uint8_t reverse = 0;  // 0 pentru secventa normala, 1 pentru secventa inversata
->>>>>>> c9aaa7a700f72c4a3aafabb1065bf188bc350f2a
-
-typedef enum {
-    WHITE, GREEN, BLUE, MAGENTA
-} LedState;
-
-LedState current_state = WHITE;
+volatile uint8_t read_accel_semaphore = 0;
+volatile uint8_t led_semaphore = 0;
+volatile uint8_t accel_data_ready = 0;
+volatile uint8_t led_timer_elapsed = 0;
 
 void PIT_Init(void) {
 	// Activarea semnalului de ceas pentru perifericul PIT
@@ -38,6 +29,7 @@ void PIT_Init(void) {
 	// Activarea timerului de pe canalul 0
 	PIT->CHANNEL[0].TCTRL |= PIT_TCTRL_TEN_MASK;
 
+	//PIT->CHANNEL[1].LDVAL = 0x497453F;
 	PIT->CHANNEL[1].LDVAL = 0x2DC6BFF;
 	PIT->CHANNEL[1].TCTRL |= PIT_TCTRL_TIE_MASK;
 	PIT->CHANNEL[1].TCTRL |= PIT_TCTRL_TEN_MASK;
@@ -47,94 +39,22 @@ void PIT_Init(void) {
 	NVIC_SetPriority(PIT_IRQn,5);
 	NVIC_EnableIRQ(PIT_IRQn);
 }
-uint8_t UTILS_PrintTimer(uint32_t value){
-	uint8_t minutes = value/60;
-	uint8_t seconds = value%60;
-	
-	UART0_Transmit(0x0D);
-	UART0_Transmit(minutes/10 + 0x30);
-	UART0_Transmit(minutes%10 + 0x30);
-	UART0_Transmit(0x3A);
-	UART0_Transmit(seconds/10 + 0x30);
-	UART0_Transmit(seconds%10 + 0x30);
-	
-	if(timer_value == 99*60+59){
-		timer_value = 0;
-	}
-	return NULL;
-}
+
 
 void PIT_IRQHandler(void) {
 	
 	if(PIT->CHANNEL[0].TFLG & PIT_TFLG_TIF_MASK) {  //timeout occured
-		PIT->CHANNEL[0].TFLG &= PIT_TFLG_TIF_MASK;
 		 
-<<<<<<< HEAD
-		switch (current_state) {
-			case WHITE:
-				getWhite();
-				current_state = GREEN;
-				break;
-			case GREEN:
-				getGreen();
-				current_state = BLUE;
-				break;
-			case BLUE:
-				getBlue();
-				current_state = MAGENTA;
-				break;
-			case MAGENTA:
-				getMagenta();
-				current_state = WHITE;
-				break;
-		}
-=======
-		if (reverse == 0) {  // Secvență normală
-            switch (current_state) {
-                case WHITE:
-                    getWhite();
-                    current_state = GREEN;
-                    break;
-                case GREEN:
-                    getGreen();
-                    current_state = BLUE;
-                    break;
-                case BLUE:
-                    getBlue();
-                    current_state = MAGENTA;
-                    break;
-                case MAGENTA:
-                    getMagenta();
-                    current_state = WHITE;
-                    break;
-            }
-        } else {  // Secvență inversată
-            switch (current_state) {
-                case WHITE:
-                    getWhite();
-                    current_state = MAGENTA;
-                    break;
-                case MAGENTA:
-                    getMagenta();
-                    current_state = BLUE;
-                    break;
-                case BLUE:
-                    getBlue();
-                    current_state = GREEN;
-                    break;
-                case GREEN:
-                    getGreenInv();
-                    current_state = WHITE;
-                    break;
-            }
-        }
+		led_timer_elapsed = 1;
+        led_semaphore = 1;
+		PIT->CHANNEL[0].TFLG &= PIT_TFLG_TIF_MASK;
 		
->>>>>>> c9aaa7a700f72c4a3aafabb1065bf188bc350f2a
 	}
 	if(PIT->CHANNEL[1].TFLG & PIT_TFLG_TIF_MASK) {  //timeout occured
-		PIT->CHANNEL[1].TFLG &= PIT_TFLG_TIF_MASK;
 
-		read_xy_flag = 1;
+		read_accel_semaphore = 1;
+		accel_data_ready = 1; 
+		PIT->CHANNEL[1].TFLG &= PIT_TFLG_TIF_MASK;
 	}
 
 }
