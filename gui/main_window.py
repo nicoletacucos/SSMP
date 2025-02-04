@@ -13,7 +13,8 @@ class MainWindow(QMainWindow):
         "CUCOȘ NICOLETA",
     ]
 
-    def __init__(self, port='COM5', baudrate= 14400):
+    def __init__(self, port='COM10', baudrate=14400):
+
         super().__init__()
         try:
             self.ser = serial.Serial(port, baudrate, timeout=1)
@@ -28,26 +29,18 @@ class MainWindow(QMainWindow):
         left_layout = QVBoxLayout()
 
         # Plot widget 1
-        plot_widget1 = pg.PlotWidget()
-        plot_widget1.setTitle("Plot 1")
-        plot_widget1.setLabel('left', 'Temperature', units='°C')
-        plot_widget1.setLabel('bottom', 'Hour', units='h')
+        self.plot_widget1 = pg.PlotWidget()  
+        self.plot_widget1.setTitle("X (g) Values")
+        self.plot_widget1.setLabel('left', 'Acceleration', units='g')
+        self.plot_widget1.setLabel('bottom', 'Data Point', units='')
+        self.plot_widget1.addLegend()
 
-        hour = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        temperature = [30, 32, 34, 32, 33, 31, 29, 32, 35, 45]
-        plot_widget1.plot(hour, temperature)
+        self.x_values = []  
+        self.data_counter = 0 
+        self.plot_data_line = self.plot_widget1.plot(self.x_values, pen=pg.mkPen(color=(255, 0, 0), width=2), name="X (g)")
 
-        # Plot widget 2
-        plot_widget2 = pg.PlotWidget()
-        plot_widget2.setTitle("Plot 2")
-        plot_widget2.setLabel('left', 'Pressure', units='Pa')
-        plot_widget2.setLabel('bottom', 'Hour', units='h')
-
-        pressure = [1010, 1020, 1030, 1025, 1028, 1015, 1005, 1010, 1020, 1030]
-        plot_widget2.plot(hour, pressure)
-
-        left_layout.addWidget(plot_widget1)
-        left_layout.addWidget(plot_widget2)
+        
+        left_layout.addWidget(self.plot_widget1)
 
         right_layout = QVBoxLayout()
 
@@ -112,14 +105,41 @@ class MainWindow(QMainWindow):
                 self.text_edit.append(f"Eroare trimitere date: {str(e)}")
         else:
             self.text_edit.append("Serial connection not initialized.")
+    
+    def append_text_with_timestamp(self, text):
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+        self.text_edit.append(f"[{timestamp}] {text}")
+
+    def update_plot(self, new_x_value):
+        self.x_values.append(new_x_value)
+        self.data_counter += 1
+
+        self.plot_data_line.setData(range(self.data_counter), self.x_values)
 
     def read_serial_data(self):
         if self.ser:
             try:
-                response = self.ser.readline().decode().strip() #decodifica datele primite
+                response = self.ser.readline().decode('utf-8', errors='ignore').strip()
                 if response:
-                    if "Invert Sequence Command\n" not in self.text_edit.toPlainText():
-                        self.text_edit.append(f"Received: {response}")
+                    if response.startswith("X (g):"):
+                        try:
+                            x_g_str = response.split("X (g):")[1].strip()
+                            x_g = float(x_g_str)
+                            self.update_plot(x_g)
+                        except ValueError:
+                            self.append_text_with_timestamp(f"Eroare la conversia '{x_g_str}' la float.")
+                    elif "Raw X:" in response:
+                        self.append_text_with_timestamp(f"Received: {response}")
+                    elif "X Offset:" in response:
+                        self.append_text_with_timestamp(f"Received: {response}")
+                    elif "STATE_" in response:
+                        self.append_text_with_timestamp(f"{response}")
+                    elif "PIT" in response:
+                        self.append_text_with_timestamp(f"{response}")
+                    elif "Calibrating..." in response:
+                        self.append_text_with_timestamp(f"{response}")
+                    elif "Eroare" in response:
+                        self.append_text_with_timestamp(f"{response}")
             except serial.SerialException as e:
                 self.text_edit.append(f"Eroare citire date: {str(e)}")
         else:
