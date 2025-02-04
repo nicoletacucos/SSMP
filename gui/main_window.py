@@ -13,7 +13,7 @@ class MainWindow(QMainWindow):
         "CUCOȘ NICOLETA",
     ]
 
-    def __init__(self, port='COM5', baudrate=115200):
+    def __init__(self, port='COM5', baudrate= 14400):
         super().__init__()
         try:
             self.ser = serial.Serial(port, baudrate, timeout=1)
