@@ -14,6 +14,7 @@ class MainWindow(QMainWindow):
     ]
 
     def __init__(self, port='COM10', baudrate=14400):
+
         super().__init__()
         try:
             self.ser = serial.Serial(port, baudrate, timeout=1)

@@ -3,10 +3,12 @@
 #include "Gpio.h"
 #include "i2c.h"
 
+
 volatile uint8_t read_accel_semaphore = 0;
 volatile uint8_t led_semaphore = 0;
 volatile uint8_t accel_data_ready = 0;
 volatile uint8_t led_timer_elapsed = 0;
+
 
 void PIT_Init(void) {
 	// Activarea semnalului de ceas pentru perifericul PIT
@@ -44,10 +46,10 @@ void PIT_Init(void) {
 void PIT_IRQHandler(void) {
 	
 	if(PIT->CHANNEL[0].TFLG & PIT_TFLG_TIF_MASK) {  //timeout occured
-		 
 		led_timer_elapsed = 1;
         led_semaphore = 1;
 		PIT->CHANNEL[0].TFLG &= PIT_TFLG_TIF_MASK;
+
 		
 	}
 	if(PIT->CHANNEL[1].TFLG & PIT_TFLG_TIF_MASK) {  //timeout occured
@@ -56,5 +58,4 @@ void PIT_IRQHandler(void) {
 		accel_data_ready = 1; 
 		PIT->CHANNEL[1].TFLG &= PIT_TFLG_TIF_MASK;
 	}
-
 }
